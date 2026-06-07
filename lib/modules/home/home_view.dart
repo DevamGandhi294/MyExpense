@@ -87,6 +87,21 @@ class _AppHeader extends StatelessWidget {
         children: [
           const Icon(Icons.menu, size: 26, color: Color(0xFF1A1A2E)),
           const SizedBox(width: 12),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                'assets/logo/logo.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
           RichText(
             text: const TextSpan(
               children: [
