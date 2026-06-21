@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
+import 'package:myexpense/shared/widgets/app_loader.dart';
 import 'add_expense_controller.dart';
 import 'widgets/amount_input_widget.dart';
 import 'widgets/category_chip_widget.dart';
@@ -75,13 +77,12 @@ class AddExpenseView extends GetView<AddExpenseController> {
                     ),
 
                     const SizedBox(height: 32),
+
+                    _SaveButton(),
                   ],
                 ),
               ),
             ),
-
-            // ── Save button (pinned) ─────────────────────────────────────────
-            _SaveButton(),
           ],
         ),
       ),
@@ -97,26 +98,21 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 20, 4),
-      child: Stack(
-        alignment: Alignment.center,
+      child: Row(
         children: [
-          // X close button – left
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              icon: const Icon(Icons.close_rounded, color: Color(0xFF555555)),
-              onPressed: () => Get.back(),
-              splashRadius: 22,
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Color(0xFF555555)),
+            onPressed: () => Get.back(),
+            splashRadius: 22,
           ),
-
-          // Title – center
+          const SizedBox(width: 8),
           const Text(
             'Add Expense',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF6C5CE7),
+              color: AppColors.accentPurple,
               letterSpacing: 0.3,
             ),
           ),
@@ -169,7 +165,7 @@ class _RoundedTextField extends StatelessWidget {
       controller: controller,
       maxLines: maxLines,
       style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
-      cursorColor: const Color(0xFF6C5CE7),
+      cursorColor: AppColors.accentPurple,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 14),
@@ -190,7 +186,7 @@ class _RoundedTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide:
-              const BorderSide(color: Color(0xFF6C5CE7), width: 1.5),
+              const BorderSide(color: AppColors.accentPurple, width: 1.5),
         ),
         filled: true,
         fillColor: const Color(0xFFFAFAFA),
@@ -218,7 +214,7 @@ class _DateRow extends GetView<AddExpenseController> {
         child: Row(
           children: [
             const Icon(Icons.calendar_today_outlined,
-                size: 18, color: Color(0xFF6C5CE7)),
+                size: 18, color: AppColors.accentPurple),
             const SizedBox(width: 12),
             Expanded(
               child: Obx(() => Text(
@@ -232,7 +228,7 @@ class _DateRow extends GetView<AddExpenseController> {
                   )),
             ),
             const Icon(Icons.edit_calendar_outlined,
-                size: 18, color: Color(0xFF6C5CE7)),
+                size: 18, color: AppColors.accentPurple),
           ],
         ),
       ),
@@ -247,7 +243,7 @@ class _SaveButton extends GetView<AddExpenseController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          padding: const EdgeInsets.fromLTRB(0, 8, 0, 20),
           child: GestureDetector(
             onTap:
                 controller.isLoading.value ? null : controller.saveExpense,
@@ -263,12 +259,12 @@ class _SaveButton extends GetView<AddExpenseController> {
                     : const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [Color(0xFF6C5CE7), Color(0xFF4834D4)],
+                        colors: [Color(0xFF3D35C4), AppColors.accentPurple],
                       ),
                 boxShadow: [
                   if (!controller.isLoading.value)
                     BoxShadow(
-                      color: const Color(0xFF6C5CE7).withOpacity(0.35),
+                      color: AppColors.accentPurple.withOpacity(0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -276,12 +272,7 @@ class _SaveButton extends GetView<AddExpenseController> {
               ),
               alignment: Alignment.center,
               child: controller.isLoading.value
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2.5),
-                    )
+                  ? const AppLoader(size: 36)
                   : const Text(
                       'Save Expense',
                       style: TextStyle(

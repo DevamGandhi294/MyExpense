@@ -1,28 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myexpense/data/models/expense_model.dart';
+import 'package:myexpense/shared/utils/category_utils.dart';
 
 class TransactionTileWidget extends StatelessWidget {
   final ExpenseModel expense;
 
   const TransactionTileWidget({super.key, required this.expense});
 
-  // ── Category → icon + colour mapping ────────────────────────────────────────
-  static const Map<String, _CategoryMeta> _meta = {
-    'Food & Dining':   _CategoryMeta(Icons.restaurant_outlined,    Color(0xFFFF7043), Color(0xFFFFF3F0)),
-    'Transport':       _CategoryMeta(Icons.local_gas_station_outlined, Color(0xFF42A5F5), Color(0xFFE8F4FD)),
-    'Entertainment':   _CategoryMeta(Icons.tv_outlined,             Color(0xFFAB47BC), Color(0xFFF8F0FA)),
-    'Groceries':       _CategoryMeta(Icons.shopping_basket_outlined, Color(0xFF26A69A), Color(0xFFE8F5F4)),
-    'Health':          _CategoryMeta(Icons.favorite_border,          Color(0xFFEF5350), Color(0xFFFFF0F0)),
-    'Shopping':        _CategoryMeta(Icons.shopping_bag_outlined,    Color(0xFFFF7043), Color(0xFFFFF3F0)),
-    'Bills':           _CategoryMeta(Icons.receipt_long_outlined,    Color(0xFF78909C), Color(0xFFF0F2F4)),
-    'Education':       _CategoryMeta(Icons.school_outlined,          Color(0xFF5C6BC0), Color(0xFFF0F1FB)),
-    'Travel':          _CategoryMeta(Icons.flight_outlined,          Color(0xFF29B6F6), Color(0xFFE7F7FE)),
-    'Other':           _CategoryMeta(Icons.category_outlined,        Color(0xFF8D6E63), Color(0xFFF5F0EE)),
-  };
-
-  _CategoryMeta _resolve() =>
-      _meta[expense.category] ?? _meta['Other']!;
+  CategoryMeta _resolve() => CategoryUtils.resolve(expense.category);
 
   String _formatDate(DateTime d) {
     const months = [
@@ -111,13 +97,4 @@ class TransactionTileWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-// ── Helper data class ────────────────────────────────────────────────────────
-class _CategoryMeta {
-  final IconData icon;
-  final Color color;
-  final Color bg;
-
-  const _CategoryMeta(this.icon, this.color, this.bg);
 }

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import '../repositories/auth_repository.dart';
 
 class FirestoreService extends GetxService {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  String get userId => FirebaseAuth.instance.currentUser!.uid;
+  String get userId => Get.find<AuthRepository>().currentUser!.uid;
 
   // users/{userId}
   DocumentReference get userDoc => db.collection('users').doc(userId);

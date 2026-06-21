@@ -18,14 +18,18 @@ class MonthModel {
   });
 
   factory MonthModel.fromJson(Map<String, dynamic> j) => MonthModel(
-    monthId:          j['monthId'],
-    month:            j['month'],
-    year:             j['year'],
-    salaryAmount:     (j['salaryAmount']     as num).toDouble(),
-    salaryAddedDate:  (j['salaryAddedDate']  as Timestamp).toDate(),
-    totalExpense:     (j['totalExpense']     as num).toDouble(),
-    remainingBalance: (j['remainingBalance'] as num).toDouble(),
-    createdAt:        (j['createdAt']        as Timestamp).toDate(),
+    monthId:          j['monthId']          as String? ?? '',
+    month:            j['month']            as String? ?? '',
+    year:             j['year']             as int?    ?? DateTime.now().year,
+    salaryAmount:     (j['salaryAmount']     as num?   ?? 0).toDouble(),
+    salaryAddedDate:  j['salaryAddedDate']  is Timestamp
+                          ? (j['salaryAddedDate'] as Timestamp).toDate()
+                          : DateTime.now(),
+    totalExpense:     (j['totalExpense']     as num?   ?? 0).toDouble(),
+    remainingBalance: (j['remainingBalance'] as num?   ?? 0).toDouble(),
+    createdAt:        j['createdAt']        is Timestamp
+                          ? (j['createdAt'] as Timestamp).toDate()
+                          : DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {

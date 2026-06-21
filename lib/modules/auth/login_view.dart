@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'auth_controller.dart';
+import '../../app/routes/app_routes.dart';
+import '../../app/theme/app_colors.dart';
+import '../../shared/widgets/custom_text_field.dart';
+import '../../shared/widgets/app_loader.dart';
+import '../../shared/widgets/hand_and_bag_logo.dart';
 
 class LoginView extends GetView<AuthController> {
   const LoginView({super.key});
-
-  // ── Brand colours (mirror app_colors.dart) ──────────────────────────────
-  static const Color _primary      = Color(0xFF3D35C4); // deep blue-purple
-  static const Color _primaryLight = Color(0xFF6C5CE7); // softer purple
-  static const Color _textDark     = Color(0xFF1A1A2E);
-  static const Color _textMuted    = Color(0xFF8A8A9A);
-  static const Color _inputFill    = Color(0xFFF4F5F7);
-  static const Color _divider      = Color(0xFFE0E0E8);
 
   @override
   Widget build(BuildContext context) {
@@ -26,48 +23,33 @@ class LoginView extends GetView<AuthController> {
             children: [
               const SizedBox(height: 32),
 
-              // ── Header ─────────────────────────────────────────────────
               Center(
                 child: Column(
                   children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _primary.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                    const HandAndBagLogo(size: 90),
+                    const SizedBox(height: 20),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'My',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.accentPurple,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                          TextSpan(
+                            text: 'Expense',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1A2E),
+                              letterSpacing: 0.4,
+                            ),
                           ),
                         ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: Image.asset(
-                          'assets/logo/logo.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'MyExpense',
-                      style: TextStyle(
-                        color: _primary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 40,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: _primaryLight,
-                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ],
@@ -76,20 +58,19 @@ class LoginView extends GetView<AuthController> {
 
               const SizedBox(height: 36),
 
-              // ── Welcome copy ────────────────────────────────────────────
               Text(
-                'Welcome Back',
-                style: TextStyle(
-                  color: _textDark,
+                'welcome_back'.tr,
+                style: const TextStyle(
+                  color: AppColors.brandTextDark,
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Login to continue',
-                style: TextStyle(
-                  color: _textMuted,
+                'login_continue'.tr,
+                style: const TextStyle(
+                  color: AppColors.brandTextMuted,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),
@@ -97,33 +78,29 @@ class LoginView extends GetView<AuthController> {
 
               const SizedBox(height: 32),
 
-              // ── Phone field ─────────────────────────────────────────────
-              _FieldLabel('PHONE NUMBER'),
+              _FieldLabel('phone_number'.tr),
               const SizedBox(height: 6),
-              _buildTextField(
+              CustomTextField(
                 controller: controller.phoneController,
-                hint: '555 0123',
+                hintText: 'Enter phone',
                 keyboardType: TextInputType.phone,
-                onChanged: (v) => controller.phone.value = v,
               ),
 
               const SizedBox(height: 20),
 
-              // ── Password field ──────────────────────────────────────────
-              _FieldLabel('PASSWORD'),
+              _FieldLabel('password'.tr),
               const SizedBox(height: 6),
-              Obx(() => _buildTextField(
+              Obx(() => CustomTextField(
                     controller: controller.passwordController,
-                    hint: 'Enter password',
-                    obscure: controller.isPasswordHidden.value,
-                    onChanged: (v) => controller.password.value = v,
-                    suffix: IconButton(
+                    hintText: 'Enter password',
+                    obscureText: controller.isPasswordHidden.value,
+                    suffixIcon: IconButton(
                       onPressed: controller.togglePasswordVisibility,
                       icon: Icon(
                         controller.isPasswordHidden.value
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: _textMuted,
+                        color: AppColors.brandTextMuted,
                         size: 20,
                       ),
                       splashRadius: 18,
@@ -132,17 +109,15 @@ class LoginView extends GetView<AuthController> {
 
               const SizedBox(height: 10),
 
-              // ── Forgot password ─────────────────────────────────────────
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () {
-                    // TODO: navigate to forgot-password screen
                   },
                   child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: _primary,
+                    'forgot_password'.tr,
+                    style: const TextStyle(
+                      color: AppColors.accentPurple,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -152,7 +127,6 @@ class LoginView extends GetView<AuthController> {
 
               const SizedBox(height: 32),
 
-              // ── Login button ────────────────────────────────────────────
               Obx(() => SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -160,61 +134,61 @@ class LoginView extends GetView<AuthController> {
                       onPressed:
                           controller.isLoading.value ? null : controller.login,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _primary,
-                        disabledBackgroundColor: _primaryLight.withOpacity(0.6),
+                        backgroundColor: AppColors.accentPurple,
+                        disabledBackgroundColor: AppColors.lightPurple.withOpacity(0.6),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                         elevation: 0,
                       ),
                       child: controller.isLoading.value
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.4,
-                              ),
-                            )
-                          : const Row(
+                          ? const AppLoader(size: 36)
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Login',
-                                  style: TextStyle(
+                                  'login'.tr,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 0.3,
                                   ),
                                 ),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_forward_rounded,
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward_rounded,
                                     color: Colors.white, size: 18),
                               ],
                             ),
                     ),
                   )),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 24),
 
-              // ── Bottom badge row ────────────────────────────────────────
-              Row(
-                children: [
-                  Expanded(
-                    child: _BadgeTile(
-                      icon: Icons.security_outlined,
-                      label: 'Secure Access',
+              Center(
+                child: GestureDetector(
+                  onTap: () => Get.toNamed(AppRoutes.REGISTER),
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'dont_have_account'.tr,
+                      style: const TextStyle(
+                        color: AppColors.brandTextMuted,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'register'.tr,
+                          style: const TextStyle(
+                            color: AppColors.accentPurple,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _BadgeTile(
-                      icon: Icons.bar_chart_rounded,
-                      label: 'Smart Insights',
-                    ),
-                  ),
-                ],
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -224,53 +198,8 @@ class LoginView extends GetView<AuthController> {
       ),
     );
   }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    bool obscure = false,
-    TextInputType keyboardType = TextInputType.text,
-    void Function(String)? onChanged,
-    Widget? suffix,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      onChanged: onChanged,
-      style: const TextStyle(
-        color: _textDark,
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: _textMuted, fontSize: 15),
-        filled: true,
-        fillColor: _inputFill,
-        suffixIcon: suffix,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _divider, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _primary, width: 1.6),
-        ),
-      ),
-    );
-  }
 }
 
-// ── Sub-widgets ──────────────────────────────────────────────────────────────
 
 class _FieldLabel extends StatelessWidget {
   final String text;
@@ -290,35 +219,3 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
-class _BadgeTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _BadgeTile({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F5F7),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: const Color(0xFF6C5CE7), size: 26),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF4A4A5A),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

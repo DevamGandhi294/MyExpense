@@ -1,18 +1,23 @@
 import 'package:get/get.dart';
-import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
-import '../services/user_service.dart';
-import '../services/month_service.dart';
-import '../services/expense_service.dart';
-import '../services/category_service.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/auth_repository_impl.dart';
+import '../repositories/user_repository.dart';
+import '../repositories/user_repository_impl.dart';
+import '../repositories/month_repository.dart';
+import '../repositories/month_repository_impl.dart';
+import '../repositories/expense_repository.dart';
+import '../repositories/expense_repository_impl.dart';
+import '../repositories/category_repository.dart';
+import '../repositories/category_repository_impl.dart';
 
 class FirebaseProvider {
   static void init() {
     Get.put(FirestoreService(), permanent: true);
-    Get.put(AuthService(),      permanent: true);
-    Get.put(UserService(),      permanent: true);
-    Get.put(MonthService(),     permanent: true);
-    Get.put(ExpenseService(),   permanent: true);
-    Get.put(CategoryService(),  permanent: true);
+    Get.put<AuthRepository>(AuthRepositoryImpl(), permanent: true);
+    Get.put<UserRepository>(UserRepositoryImpl(), permanent: true);
+    Get.put<MonthRepository>(MonthRepositoryImpl(), permanent: true);
+    Get.put<ExpenseRepository>(ExpenseRepositoryImpl(), permanent: true);
+    Get.put<CategoryRepository>(CategoryRepositoryImpl(), permanent: true);
   }
 }

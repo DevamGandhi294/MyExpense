@@ -1,12 +1,10 @@
 import 'package:get/get.dart';
-import 'package:myexpense/data/services/auth_service.dart';
+import 'package:myexpense/data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
 
 class SplashController extends GetxController {
   @override
   void onReady() {
-    // onReady fires AFTER the first frame — all bindings are guaranteed
-    // to be registered by this point, so Get.find<AuthService>() is safe.
     super.onReady();
     _navigateAfterDelay();
   }
@@ -14,13 +12,10 @@ class SplashController extends GetxController {
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    // AuthService is registered as a permanent GetxService in main.dart via
-    // await Get.putAsync(() => AuthService().init());
-    // so it is always findable here.
-    final auth = Get.find<AuthService>();
+    final auth = Get.find<AuthRepository>();
 
     if (auth.isLoggedIn) {
-      Get.offAllNamed(AppRoutes.SHELL);
+      Get.offAllNamed(AppRoutes.MAIN);
     } else {
       Get.offAllNamed(AppRoutes.LOGIN);
     }

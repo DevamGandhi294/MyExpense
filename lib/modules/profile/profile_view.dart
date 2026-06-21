@@ -1,7 +1,9 @@
-// lib/app/modules/profile/profile_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'profile_controller.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
+import 'package:myexpense/modules/profile/profile_controller.dart';
+import 'package:myexpense/shared/widgets/app_loader.dart';
+import 'package:myexpense/shared/widgets/common_sliver_app_bar.dart';
 import 'widgets/profile_menu_tile_widget.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -10,137 +12,85 @@ class ProfileView extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
-        ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  'assets/logo/logo.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'MyExpense',
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Obx(() {
-              final name = controller.user.value?.name ?? '';
-              return CircleAvatar(
-                radius: 18,
-                backgroundColor: const Color(0xFF2D3FE7),
-                child: Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : '?',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.neutral50,
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const AppLoader();
         }
 
-        final user = controller.user.value;
-        final name = user?.name ?? 'Unknown';
-        final phone = user?.phone ?? '';
-
-        return SingleChildScrollView(
-          child: Column(
-            children: [
+        return CustomScrollView(
+          slivers: [
+            CommonSliverAppBar(
+              showLogo: true,
+            ),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
               // ── Avatar + Name + Phone ──
               Container(
                 width: double.infinity,
                 color: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 28),
-                child: Column(
-                  children: [
-                    Stack(
-                      children: [
-                        // Avatar circle 120px
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundColor: const Color(0xFF2D3FE7).withOpacity(0.12),
-                          child: Text(
-                            name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D3FE7),
+                child: Obx(() {
+                  final user = controller.user.value;
+                  final name = user?.name ?? 'Unknown';
+                  final phone = user?.phone ?? '';
+
+                  return Column(
+                    children: [
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundColor: AppColors.accentPurple.withOpacity(0.12),
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              style: const TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.accentPurple,
+                              ),
                             ),
                           ),
-                        ),
-                        // Edit badge bottom-right
-                        Positioned(
-                          bottom: 4,
-                          right: 4,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF2D3FE7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 15,
+                          Positioned(
+                            bottom: 4,
+                            right: 4,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: const BoxDecoration(
+                                color: AppColors.accentPurple,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 15,
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      phone,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                      const SizedBox(height: 4),
+                      Text(
+                        phone,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
               ),
 
               const SizedBox(height: 16),
@@ -251,8 +201,10 @@ class ProfileView extends GetView<ProfileController> {
               const SizedBox(height: 24),
             ],
           ),
-        );
-      }),
+        ),
+      ],
     );
+  }),
+);
   }
 }

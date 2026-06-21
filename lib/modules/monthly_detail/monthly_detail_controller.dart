@@ -1,26 +1,40 @@
-import 'dart:ui';
-
 import 'package:get/get.dart';
 import 'package:myexpense/data/models/expense_model.dart';
 import 'package:myexpense/data/models/month_model.dart';
-import 'package:myexpense/data/services/expense_service.dart';
-import 'package:myexpense/data/services/month_service.dart';
+import 'package:myexpense/data/repositories/expense_repository.dart';
+import 'package:myexpense/data/repositories/month_repository.dart';
+import 'package:myexpense/shared/utils/app_toast.dart';
+import 'package:myexpense/shared/utils/salary_dialog_helper.dart';
 
 class MonthlyDetailController extends GetxController {
-  final MonthService monthService;
-  final ExpenseService expenseService;
+  final MonthRepository monthService;
+  final ExpenseRepository expenseService;
 
   MonthlyDetailController({
     required this.monthService,
     required this.expenseService,
   });
 
-  final currentMonth = Rx<MonthModel?>(null);
-  final allExpenses = <ExpenseModel>[].obs;
-  final filteredExpenses = <ExpenseModel>[].obs;
-  final filterMode = 'category'.obs;
-  final isLoading = false.obs;
-  final selectedMonthId = ''.obs;
+  void editSalary() {
+    SalaryDialogHelper.showEditSalaryDialog(
+      monthId: selectedMonthId.value,
+      currentSalary: salaryAmount.value,
+      onSuccess: () => loadMonthDetail(),
+    );
+  }
+
+  final currentMonth      = Rx<MonthModel?>(null);
+  final allExpenses       = <ExpenseModel>[].obs;
+  final filteredExpenses  = <ExpenseModel>[].obs;
+  final filterMode        = 'category'.obs;
+  final isLoading         = false.obs;
+  final selectedMonthId   = ''.obs;
+
+  // ── Reactive balance values — update independently of isLoading ───────────
+  final remainingBalance  = 0.0.obs;
+  final salaryAmount      = 0.0.obs;
+  final totalExpense      = 0.0.obs;
+  final monthTitle        = ''.obs;
 
   @override
   void onInit() {
@@ -35,19 +49,21 @@ class MonthlyDetailController extends GetxController {
       final month = await monthService.getCurrentMonth();
       currentMonth.value = month;
 
+      // Update Rx values immediately so banner reacts without waiting
+      remainingBalance.value = month?.remainingBalance ?? 0;
+      salaryAmount.value     = month?.salaryAmount     ?? 0;
+      totalExpense.value     = month?.totalExpense     ?? 0;
+      monthTitle.value       = month != null
+          ? '${month.month} ${month.year}'
+          : '';
+
       final monthId = selectedMonthId.value;
       final expenses = await expenseService.getExpenses(monthId);
       allExpenses.assignAll(expenses);
 
       applyFilter();
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load month details: ${e.toString()}',
-        backgroundColor: const Color(0xFFEF4444),
-        colorText: const Color(0xFFFFFFFF),
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppToast.error('Error', 'Failed to load month details: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }
@@ -69,12 +85,4 @@ class MonthlyDetailController extends GetxController {
     filterMode.value = mode;
     applyFilter();
   }
-
-  double get remainingBalance => currentMonth.value?.remainingBalance ?? 0;
-  double get salaryAmount => currentMonth.value?.salaryAmount ?? 0;
-  double get totalExpense => currentMonth.value?.totalExpense ?? 0;
-  String get monthTitle =>
-      currentMonth.value != null
-          ? '${currentMonth.value!.month} ${currentMonth.value!.year}'
-          : '';
-}
+}

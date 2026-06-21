@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import '../add_expense_controller.dart';
 
 /// Maps a category icon string to a Flutter [IconData].
@@ -22,7 +23,7 @@ Color colorFromHex(String hex) {
     final clean = hex.replaceAll('#', '');
     return Color(int.parse('FF$clean', radix: 16));
   } catch (_) {
-    return const Color(0xFF6C5CE7);
+    return AppColors.accentPurple;
   }
 }
 
@@ -65,12 +66,12 @@ class CategoryChipWidget extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF6C5CE7)
+                    ? AppColors.accentPurple
                     : const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF6C5CE7)
+                      ? AppColors.accentPurple
                       : const Color(0xFFE0E0E0),
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import '../add_expense_controller.dart';
 
 class AmountInputWidget extends StatelessWidget {
@@ -34,24 +35,24 @@ class AmountInputWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF6C5CE7),
+                color: AppColors.accentPurple,
               ),
             ),
             const SizedBox(width: 6),
             IntrinsicWidth(
               child: TextField(
                 controller: ctrl.amountController,
-                autofocus: true,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                showCursor: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(
                       RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 style: const TextStyle(
                   fontSize: 44,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFFCCCCCC),
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1A1A2E),
                   letterSpacing: 1,
                 ),
                 decoration: const InputDecoration(
@@ -61,13 +62,31 @@ class AmountInputWidget extends StatelessWidget {
                     fontWeight: FontWeight.w300,
                     color: Color(0xFFCCCCCC),
                   ),
-                  border: InputBorder.none,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide(
+                      color: AppColors.accentPurple,
+                      width: 1.5,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFFAFAFA),
                   isDense: true,
-                  contentPadding: EdgeInsets.zero,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 ),
-                textAlign: TextAlign.center,
-                cursorColor: Color(0xFF6C5CE7),
-                cursorWidth: 2,
+                textAlign: TextAlign.start,
+                cursorColor: AppColors.accentPurple,
+                cursorWidth: 2.5,
+                cursorHeight: 38,
               ),
             ),
           ],

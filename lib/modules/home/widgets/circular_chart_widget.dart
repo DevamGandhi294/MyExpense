@@ -2,12 +2,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:myexpense/modules/home/home_controller.dart';
+import 'package:myexpense/shared/widgets/app_loader.dart';
 
 class CircularChartWidget extends GetView<HomeController> {
   const CircularChartWidget({super.key});
 
-  /// Indian number format helper: ₹12,000 / ₹1,50,000
   String _fmt(double amount) {
     final formatter = NumberFormat.currency(
       locale: 'en_IN',
@@ -20,6 +21,12 @@ class CircularChartWidget extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (controller.isLoading.value) {
+        return const SizedBox(
+          height: 156,
+          child: AppLoader(),
+        );
+      }
       final pct = controller.spentPercentage;
       final spent = controller.totalExpense;
       final remaining = controller.remaining;
@@ -30,9 +37,13 @@ class CircularChartWidget extends GetView<HomeController> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0x0F000000),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -40,7 +51,6 @@ class CircularChartWidget extends GetView<HomeController> {
         ),
         child: Row(
           children: [
-            // ── Donut chart ──────────────────────────────────────────────
             SizedBox(
               width: 120,
               height: 120,
@@ -53,24 +63,21 @@ class CircularChartWidget extends GetView<HomeController> {
                       sectionsSpace: 0,
                       centerSpaceRadius: 38,
                       sections: [
-                        // Spent section (dark blue)
                         PieChartSectionData(
                           value: pct <= 0 ? 0.001 : pct,
-                          color: const Color(0xFF1A237E),
+                          color: AppColors.accentPurple,
                           radius: 22,
                           showTitle: false,
                         ),
-                        // Remaining section (light grey)
                         PieChartSectionData(
                           value: pct >= 100 ? 0.001 : (100 - pct),
-                          color: const Color(0xFFE8EAF6),
+                          color: const Color(0xFFF1EEFC),
                           radius: 22,
                           showTitle: false,
                         ),
                       ],
                     ),
                   ),
-                  // Center label
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -79,7 +86,7 @@ class CircularChartWidget extends GetView<HomeController> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A237E),
+                          color: AppColors.accentPurple,
                         ),
                       ),
                       const Text(

@@ -42,8 +42,8 @@ class AppColors {
   static const tertiary900 = Color(0xFF064E3B);
 
   // ── Neutral ──────────────────────────────────────────
-  static const neutral     = Color(0xFFF8FAFC); // base bg
-  static const neutral50   = Color(0xFFF8FAFC);
+  static const neutral     = Color(0xFFF5F6FA); // base bg
+  static const neutral50   = Color(0xFFF5F6FA);
   static const neutral100  = Color(0xFFF1F5F9);
   static const neutral200  = Color(0xFFE2E8F0);
   static const neutral300  = Color(0xFFCBD5E1);
@@ -76,6 +76,16 @@ class AppColors {
   static const incomeGreen   = Color(0xFF10B981);  // positive income
   static const cardShadow    = Color(0x0F1E293B);  // soft shadow
 
+  // ── Brand Accent Colors ─────────────────────────────
+  static const brandPrimary      = Color(0xFF3D35C4); // deep blue-purple
+  static const brandPrimaryLight = Color(0xFF6C5CE7); // softer purple
+  static const brandTextDark     = Color(0xFF1A1A2E);
+  static const brandTextMuted    = Color(0xFF8A8A9A);
+  static const brandInputFill    = Color(0xFFF4F5F7);
+  static const brandDivider      = Color(0xFFE0E0E8);
+  static const accentPurple      = Color(0xFF6B00DB);
+  static const lightPurple       = Color(0xFFB39DDB);
+
   // ── Gradient ─────────────────────────────────────────
   static const List<Color> primaryGradient = [
     Color(0xFF1E3A8A),
@@ -83,9 +93,9 @@ class AppColors {
   ];
 
   static const List<Color> splashGradient = [
-    Color(0xFF1E3A8A),
-    Color(0xFF5B21B6),
-    Color(0xFF8D2BD9),
+    Color(0xFF3D35C4), // deep indigo
+    Color(0xFF5A3DC8), // mid purple-blue
+    Color(0xFF8B2FC9), // vivid purple
   ];
 
   static const List<Color> cardGradient = [

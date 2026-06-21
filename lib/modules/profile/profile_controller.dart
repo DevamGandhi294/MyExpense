@@ -2,12 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myexpense/data/models/user_model.dart';
-import 'package:myexpense/data/services/auth_service.dart';
-import 'package:myexpense/data/services/user_service.dart';
+import 'package:myexpense/data/repositories/auth_repository.dart';
+import 'package:myexpense/data/repositories/user_repository.dart';
+import 'package:myexpense/shared/utils/app_toast.dart';
 
 class ProfileController extends GetxController {
-  final _userService = Get.find<UserService>();
-  final _authService = Get.find<AuthService>();
+  final _userService = Get.find<UserRepository>();
+  final _authService = Get.find<AuthRepository>();
 
   final user = Rxn<UserModel>();
   final isLoading = false.obs;
@@ -23,13 +24,7 @@ class ProfileController extends GetxController {
     try {
       user.value = await _userService.getUser();
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load user profile',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: Colors.red.shade900,
-      );
+      AppToast.error('Error', 'Failed to load user profile');
     } finally {
       isLoading.value = false;
     }
@@ -62,22 +57,9 @@ class ProfileController extends GetxController {
   Future<void> changePassword(String newPass) async {
     try {
       await _authService.changePassword(newPass);
-      Get.snackbar(
-        'Success',
-        'Password changed successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.shade100,
-        colorText: Colors.green.shade900,
-        icon: const Icon(Icons.check_circle, color: Colors.green),
-      );
+      AppToast.success('Success', 'Password changed successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to change password. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: Colors.red.shade900,
-      );
+      AppToast.error('Error', 'Failed to change password. Please try again.');
     }
   }
 

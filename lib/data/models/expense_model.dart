@@ -16,13 +16,17 @@ class ExpenseModel {
   });
 
   factory ExpenseModel.fromJson(Map<String, dynamic> j) => ExpenseModel(
-    id:        j['id'] ?? '',
-    title:     j['title'],
-    amount:    (j['amount'] as num).toDouble(),
-    category:  j['category'],
-    note:      j['note'] ?? '',
-    date:      (j['date']      as Timestamp).toDate(),
-    createdAt: (j['createdAt'] as Timestamp).toDate(),
+    id:        j['id']       as String? ?? '',
+    title:     j['title']    as String? ?? '',
+    amount:    (j['amount']  as num?    ?? 0).toDouble(),
+    category:  j['category'] as String? ?? 'Uncategorized',
+    note:      j['note']     as String? ?? '',
+    date:      j['date']      is Timestamp
+                  ? (j['date'] as Timestamp).toDate()
+                  : DateTime.now(),
+    createdAt: j['createdAt'] is Timestamp
+                  ? (j['createdAt'] as Timestamp).toDate()
+                  : DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {

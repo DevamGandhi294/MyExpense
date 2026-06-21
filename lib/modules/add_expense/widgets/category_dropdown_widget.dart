@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:myexpense/data/models/category_model.dart';
 import '../add_expense_controller.dart';
 import 'category_chip_widget.dart'; // reuses colorFromHex & categoryIconFor
@@ -17,7 +18,7 @@ class CategoryDropdownWidget extends StatelessWidget {
         hint: const Row(
           children: [
             Icon(Icons.grid_view_rounded,
-                size: 18, color: Color(0xFF6C5CE7)),
+                size: 18, color: AppColors.accentPurple),
             SizedBox(width: 10),
             Text(
               'Select Category',
@@ -39,14 +40,14 @@ class CategoryDropdownWidget extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide:
-                const BorderSide(color: Color(0xFF6C5CE7), width: 1.5),
+                const BorderSide(color: AppColors.accentPurple, width: 1.5),
           ),
           filled: true,
           fillColor: const Color(0xFFFAFAFA),
         ),
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,
-          color: Color(0xFF6C5CE7),
+          color: AppColors.accentPurple,
         ),
         items: ctrl.categories.map((cat) {
           final color = colorFromHex(cat.color);

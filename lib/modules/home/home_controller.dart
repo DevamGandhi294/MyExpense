@@ -1,19 +1,33 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:myexpense/data/models/expense_model.dart';
 import 'package:myexpense/data/models/month_model.dart';
-import 'package:myexpense/data/services/expense_service.dart';
-import 'package:myexpense/data/services/month_service.dart';
+import 'package:myexpense/data/repositories/auth_repository.dart';
+import 'package:myexpense/data/repositories/expense_repository.dart';
+import 'package:myexpense/data/repositories/month_repository.dart';
+import 'package:myexpense/shared/utils/app_toast.dart';
+import 'package:myexpense/shared/utils/salary_dialog_helper.dart';
 
 class HomeController extends GetxController {
-  final MonthService _monthService = Get.find<MonthService>();
-  final ExpenseService _expenseService = Get.find<ExpenseService>();
+  final MonthRepository _monthService = Get.find<MonthRepository>();
+  final ExpenseRepository _expenseService = Get.find<ExpenseRepository>();
+  final AuthRepository _authService = Get.find<AuthRepository>();
+
+  void editSalary() {
+    final mId = currentMonth.value?.monthId ?? _monthService.currentMonthId();
+    SalaryDialogHelper.showEditSalaryDialog(
+      monthId: mId,
+      currentSalary: salary,
+      onSuccess: () => loadDashboard(),
+    );
+  }
 
   // ── Observables ──────────────────────────────────────────────────────────────
   final Rx<MonthModel?> currentMonth = Rx<MonthModel?>(null);
   final RxList<ExpenseModel> recentExpenses = <ExpenseModel>[].obs;
   final RxBool isLoading = true.obs;
   final RxString userName = ''.obs;
+
+  String? get userPhotoUrl => _authService.currentUser?.photoURL;
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   @override
@@ -25,7 +39,7 @@ class HomeController extends GetxController {
 
   // ── Private helpers ──────────────────────────────────────────────────────────
   void _loadUserName() {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _authService.currentUser;
     if (user != null) {
       // Use displayName if set, otherwise derive from email
       if (user.displayName != null && user.displayName!.isNotEmpty) {
@@ -55,11 +69,7 @@ class HomeController extends GetxController {
       currentMonth.value = results[0] as MonthModel?;
       recentExpenses.assignAll(results[1] as List<ExpenseModel>);
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load dashboard: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppToast.error('Error', 'Failed to load dashboard: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }

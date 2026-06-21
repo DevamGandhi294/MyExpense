@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:myexpense/data/models/category_model.dart';
 import 'package:myexpense/data/models/expense_model.dart';
-import 'package:myexpense/data/services/category_service.dart';
-import 'package:myexpense/data/services/expense_service.dart';
+import 'package:myexpense/data/repositories/category_repository.dart';
+import 'package:myexpense/data/repositories/expense_repository.dart';
 import 'package:myexpense/modules/home/home_controller.dart';
+import 'package:myexpense/shared/utils/app_toast.dart';
 
 class AddExpenseController extends GetxController {
-  final _expenseService  = Get.find<ExpenseService>();
-  final _categoryService = Get.find<CategoryService>();
+  final _expenseService = Get.find<ExpenseRepository>();
+  final _categoryService = Get.find<CategoryRepository>();
 
   // ── Observables ──────────────────────────────────────────────────────────
   final amount           = 0.0.obs;
   final title            = ''.obs;
-  final selectedCategory = Rx<CategoryModel?>(null);
+  final selectedCategory = Rxn<CategoryModel>();
   final selectedDate     = DateTime.now().obs;
   final note             = ''.obs;
   final isLoading        = false.obs;
   final categories       = <CategoryModel>[].obs;
+  final isAmountTextEmpty = true.obs;
 
   // Text-editing controllers so the view can drive them
   final amountController = TextEditingController();
@@ -34,6 +37,7 @@ class AddExpenseController extends GetxController {
     amountController.addListener(() {
       final text = amountController.text.trim();
       amount.value = double.tryParse(text) ?? 0.0;
+      isAmountTextEmpty.value = text.isEmpty;
     });
   }
 
@@ -51,13 +55,7 @@ class AddExpenseController extends GetxController {
       final list = await _categoryService.getCategories();
       categories.assignAll(list);
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load categories: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade600,
-        colorText: Colors.white,
-      );
+      AppToast.error('Error', 'Failed to load categories: $e');
     }
   }
 
@@ -78,7 +76,7 @@ class AddExpenseController extends GetxController {
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: const ColorScheme.light(
-            primary: Color(0xFF6C5CE7),
+            primary: AppColors.accentPurple,
             onPrimary: Colors.white,
           ),
         ),
@@ -95,26 +93,12 @@ class AddExpenseController extends GetxController {
     final currentNote  = noteController.text.trim();
 
     if (currentTitle.isEmpty) {
-      Get.snackbar(
-        'Missing title',
-        'Please enter what you spent on.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange.shade700,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
-      );
+      AppToast.warning('Missing title', 'Please enter what you spent on.');
       return;
     }
 
     if (amount.value <= 0) {
-      Get.snackbar(
-        'Invalid amount',
-        'Please enter an amount greater than zero.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange.shade700,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
-      );
+      AppToast.warning('Invalid amount', 'Please enter an amount greater than zero.');
       return;
     }
 
@@ -138,26 +122,11 @@ class AddExpenseController extends GetxController {
         Get.find<HomeController>().loadDashboard();
       }
 
-      Get.snackbar(
-        'Expense saved!',
-        '₹${amount.value.toStringAsFixed(2)} added successfully.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF6C5CE7),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
-        duration: const Duration(seconds: 2),
-      );
+      AppToast.success('Expense saved successfully.');
 
       Get.back();
     } catch (e) {
-      Get.snackbar(
-        'Save failed',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade600,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
-      );
+      AppToast.error('Save failed', e.toString());
     } finally {
       isLoading.value = false;
     }

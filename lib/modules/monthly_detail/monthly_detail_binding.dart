@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:myexpense/data/services/expense_service.dart';
-import 'package:myexpense/data/services/month_service.dart';
+import 'package:myexpense/data/repositories/expense_repository.dart';
+import 'package:myexpense/data/repositories/month_repository.dart';
 import 'monthly_detail_controller.dart';
 
 class MonthlyDetailBinding extends Bindings {
@@ -8,8 +8,8 @@ class MonthlyDetailBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<MonthlyDetailController>(
       () => MonthlyDetailController(
-        monthService: Get.find<MonthService>(),
-        expenseService: Get.find<ExpenseService>(),
+        monthService: Get.find<MonthRepository>(),
+        expenseService: Get.find<ExpenseRepository>(),
       ),
     );
   }

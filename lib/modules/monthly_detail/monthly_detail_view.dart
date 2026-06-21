@@ -7,6 +7,8 @@ import 'package:myexpense/app/theme/app_text_styles.dart';
 import 'package:myexpense/data/models/expense_model.dart';
 import 'package:myexpense/modules/monthly_detail/widgets/balance_banner_widget.dart';
 import 'package:myexpense/modules/monthly_detail/widgets/filter_toggle_widget.dart';
+import 'package:myexpense/shared/widgets/app_loader.dart';
+import 'package:myexpense/shared/widgets/common_sliver_app_bar.dart';
 import 'monthly_detail_controller.dart';
 
 class MonthlyDetailView extends GetView<MonthlyDetailController> {
@@ -16,82 +18,73 @@ class MonthlyDetailView extends GetView<MonthlyDetailController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.neutral50,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(
-            Icons.arrow_back,
-            color: AppColors.neutral900,
-            size: AppDimensions.iconMD,
-          ),
-        ),
-        title: Obx(
-          () => Text(
-            controller.monthTitle,
-            style: AppTextStyles.headlineMedium,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: AppDimensions.spaceMD),
-            child: CircleAvatar(
-              radius: AppDimensions.avatarSizeSM / 2,
-              backgroundColor: AppColors.primary300,
-              child: Text(
-                'AJ',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w700,
+      body: CustomScrollView(
+        slivers: [
+          CommonSliverAppBar(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 12),
+                    child: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                  ),
                 ),
+                Obx(
+                  () => Text(
+                    controller.monthTitle.value,
+                    style: const TextStyle(
+                      color: AppColors.accentPurple,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: BalanceBannerWidget(),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.pagePadding,
+                vertical: AppDimensions.spaceMD,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Timeline', style: AppTextStyles.headlineSmall),
+                  Obx(() => FilterToggleWidget(
+                        filterMode: controller.filterMode.value,
+                        onToggle: controller.toggleFilter,
+                      )),
+                ],
               ),
             ),
+          ),
+          Obx(() {
+            if (controller.isLoading.value) {
+              return const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 200,
+                  child: AppLoader(size: 90),
+                ),
+              );
+            }
+            return _buildExpenseList();
+          }),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: AppDimensions.spaceXXL),
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
-        }
-        return CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: BalanceBannerWidget(
-                remainingBalance: controller.remainingBalance,
-                salaryAmount: controller.salaryAmount,
-                totalExpense: controller.totalExpense,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.pagePadding,
-                  vertical: AppDimensions.spaceMD,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Timeline', style: AppTextStyles.headlineSmall),
-                    FilterToggleWidget(
-                      filterMode: controller.filterMode.value,
-                      onToggle: controller.toggleFilter,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _buildExpenseList(),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppDimensions.spaceXXL),
-            ),
-          ],
-        );
-      }),
     );
   }
 
