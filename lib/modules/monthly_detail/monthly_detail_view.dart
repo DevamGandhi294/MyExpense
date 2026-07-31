@@ -5,7 +5,12 @@ import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:myexpense/app/theme/app_dimensions.dart';
 import 'package:myexpense/app/theme/app_text_styles.dart';
 import 'package:myexpense/data/models/expense_model.dart';
+import 'package:myexpense/data/repositories/expense_repository.dart';
+import 'package:myexpense/modules/home/home_controller.dart';
+import 'package:myexpense/modules/analytics/analytics_controller.dart';
+import 'package:myexpense/shared/utils/app_toast.dart';
 import 'package:myexpense/modules/monthly_detail/widgets/balance_banner_widget.dart';
+import 'package:myexpense/app/routes/app_routes.dart';
 import 'package:myexpense/modules/monthly_detail/widgets/filter_toggle_widget.dart';
 import 'package:myexpense/shared/widgets/app_loader.dart';
 import 'package:myexpense/shared/widgets/common_sliver_app_bar.dart';
@@ -239,75 +244,183 @@ class _ExpenseListTile extends StatelessWidget {
     }
   }
 
+  Future<void> _deleteTransaction(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Transaction'),
+        content: const Text('Are you sure you want to delete this transaction?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        final expenseService = Get.find<ExpenseRepository>();
+        final monthId = '${expense.date.year}-${expense.date.month.toString().padLeft(2, '0')}';
+        await expenseService.deleteExpense(monthId, expense);
+        AppToast.success('Transaction deleted');
+        
+        _reloadAllControllers();
+      } catch (e) {
+        AppToast.error('Delete failed', e.toString());
+      }
+    }
+  }
+
+  void _reloadAllControllers() {
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().loadDashboard();
+    }
+    if (Get.isRegistered<AnalyticsController>()) {
+      Get.find<AnalyticsController>().loadAnalyticsData();
+    }
+    if (Get.isRegistered<MonthlyDetailController>()) {
+      Get.find<MonthlyDetailController>().loadMonthDetail();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.pagePadding,
-            vertical: 12,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: AppDimensions.categoryIconSize,
-                height: AppDimensions.categoryIconSize,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral100,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
-                ),
-                child: Icon(
-                  _getCategoryIcon(expense.category),
-                  size: AppDimensions.iconSM,
-                  color: AppColors.neutral600,
-                ),
+    return Dismissible(
+      key: Key(expense.id.isEmpty ? expense.hashCode.toString() : expense.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: Colors.red.shade600,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Delete Transaction'),
+            content: const Text('Are you sure you want to delete this transaction?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancel'),
               ),
-              const SizedBox(width: AppDimensions.spaceMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      expense.title,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: AppColors.neutral900,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${expense.category} · ${_formatDate(expense.date)}',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.neutral500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppDimensions.spaceXS),
-              Text(
-                _formatAmount(expense.amount),
-                style: AppTextStyles.amountExpense.copyWith(fontSize: 14),
-                textAlign: TextAlign.right,
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Delete', style: TextStyle(color: Colors.red)),
               ),
             ],
           ),
+        );
+      },
+      onDismissed: (direction) async {
+        try {
+          final expenseService = Get.find<ExpenseRepository>();
+          final monthId = '${expense.date.year}-${expense.date.month.toString().padLeft(2, '0')}';
+          await expenseService.deleteExpense(monthId, expense);
+          AppToast.success('Transaction deleted');
+          
+          _reloadAllControllers();
+        } catch (e) {
+          AppToast.error('Delete failed', e.toString());
+        }
+      },
+      child: GestureDetector(
+        onLongPress: () => _deleteTransaction(context),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.pagePadding,
+                vertical: 12,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: AppDimensions.categoryIconSize,
+                    height: AppDimensions.categoryIconSize,
+                    decoration: BoxDecoration(
+                      color: AppColors.neutral100,
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+                    ),
+                    child: Icon(
+                      _getCategoryIcon(expense.category),
+                      size: AppDimensions.iconSM,
+                      color: AppColors.neutral600,
+                    ),
+                  ),
+                  const SizedBox(width: AppDimensions.spaceMD),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense.title,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppColors.neutral900,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${expense.category} · ${_formatDate(expense.date)}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.neutral500,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppDimensions.spaceSM),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _formatAmount(expense.amount),
+                        style: AppTextStyles.amountExpense.copyWith(fontSize: 14),
+                        textAlign: TextAlign.right,
+                      ),
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(
+                          AppRoutes.ADD_EXPENSE,
+                          arguments: expense,
+                        ),
+                        child: const Icon(
+                          Icons.edit_rounded,
+                          size: 20,
+                          color: AppColors.accentPurple,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (showDivider)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: AppDimensions.pagePadding,
+                endIndent: AppDimensions.pagePadding,
+                color: AppColors.neutral100,
+              ),
+          ],
         ),
-        if (showDivider)
-          Divider(
-            height: 1,
-            thickness: 1,
-            indent: AppDimensions.pagePadding,
-            endIndent: AppDimensions.pagePadding,
-            color: AppColors.neutral100,
-          ),
-      ],
+      ),
     );
   }
 }
+

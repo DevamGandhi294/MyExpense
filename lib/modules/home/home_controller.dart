@@ -4,6 +4,7 @@ import 'package:myexpense/data/models/month_model.dart';
 import 'package:myexpense/data/repositories/auth_repository.dart';
 import 'package:myexpense/data/repositories/expense_repository.dart';
 import 'package:myexpense/data/repositories/month_repository.dart';
+import 'package:myexpense/data/repositories/category_repository.dart';
 import 'package:myexpense/shared/utils/app_toast.dart';
 import 'package:myexpense/shared/utils/salary_dialog_helper.dart';
 
@@ -60,6 +61,10 @@ class HomeController extends GetxController {
   Future<void> loadDashboard() async {
     try {
       isLoading.value = true;
+
+      // Warm up the category caches in parallel
+      Get.find<CategoryRepository>().getCategories();
+      Get.find<CategoryRepository>().getQuickCategories();
 
       final results = await Future.wait([
         _monthService.getCurrentMonth(),

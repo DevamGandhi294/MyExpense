@@ -51,7 +51,20 @@ class AddExpenseView extends GetView<AddExpenseController> {
                     const SizedBox(height: 20),
 
                     // ── Category ─────────────────────────────────────────────
-                    _SectionLabel('CATEGORY'),
+                    Row(
+                      children: [
+                        const _SectionLabel('CATEGORY'),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => CategoryDropdownWidget.showManageCategoriesDialog(context, controller),
+                          child: const Icon(
+                            Icons.add_circle_outline_rounded,
+                            size: 20,
+                            color: AppColors.accentPurple,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 6),
                     const CategoryDropdownWidget(),
                     const SizedBox(height: 10),
@@ -93,7 +106,7 @@ class AddExpenseView extends GetView<AddExpenseController> {
 // ─────────────────────────────────────────────────────────────────────────────
 // Header
 // ─────────────────────────────────────────────────────────────────────────────
-class _Header extends StatelessWidget {
+class _Header extends GetView<AddExpenseController> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -107,15 +120,15 @@ class _Header extends StatelessWidget {
             splashRadius: 22,
           ),
           const SizedBox(width: 8),
-          const Text(
-            'Add Expense',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.accentPurple,
-              letterSpacing: 0.3,
-            ),
-          ),
+          Obx(() => Text(
+                controller.isEditing.value ? 'Edit Expense' : 'Add Expense',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.accentPurple,
+                  letterSpacing: 0.3,
+                ),
+              )),
         ],
       ),
     );
@@ -273,9 +286,9 @@ class _SaveButton extends GetView<AddExpenseController> {
               alignment: Alignment.center,
               child: controller.isLoading.value
                   ? const AppLoader(size: 36)
-                  : const Text(
-                      'Save Expense',
-                      style: TextStyle(
+                  : Text(
+                      controller.isEditing.value ? 'Save Changes' : 'Save Expense',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

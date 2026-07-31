@@ -28,25 +28,14 @@ Color colorFromHex(String hex) {
 }
 
 class CategoryChipWidget extends StatelessWidget {
-  /// Names of the categories to surface as quick-select chips.
-  final List<String> quickCategories;
-
-  const CategoryChipWidget({
-    super.key,
-    this.quickCategories = const ['Food & Dining', 'Transport', 'Shopping'],
-  });
+  const CategoryChipWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.find<AddExpenseController>();
 
     return Obx(() {
-      // Filter the full list to only the quick-select names
-      final chips = ctrl.categories.where((c) {
-        return quickCategories
-            .map((q) => q.toLowerCase())
-            .contains(c.name.toLowerCase());
-      }).toList();
+      final chips = ctrl.quickSelectCategories;
 
       if (chips.isEmpty) return const SizedBox(height: 36);
 

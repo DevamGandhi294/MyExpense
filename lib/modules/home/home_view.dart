@@ -112,34 +112,58 @@ class _RecentHeader extends GetView<HomeController> {
       }
       return Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Recent Transactions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                // Navigate to monthly detail; pass current monthId
-                final monthId = controller.currentMonth.value?.monthId;
-                Get.toNamed(
-                  AppRoutes.MONTHLY_DETAIL,
-                  arguments: monthId,
-                );
-              },
-              child: const Text(
-                'View All',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.accentPurple,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Recent Transactions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E),
+                  ),
                 ),
-              ),
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to monthly detail; pass current monthId
+                    final monthId = controller.currentMonth.value?.monthId;
+                    Get.toNamed(
+                      AppRoutes.MONTHLY_DETAIL,
+                      arguments: monthId,
+                    );
+                  },
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.accentPurple,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.swipe_left_rounded,
+                  size: 14,
+                  color: Colors.grey.shade500,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Swipe right to left for delete expense',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
