@@ -26,6 +26,7 @@ class AnalyticsController extends GetxController {
   final RxList<ExpenseModel> expenses = <ExpenseModel>[].obs;
   final RxBool isLoading = true.obs;
   final RxBool isFullMonthView = false.obs; // false = Last 7 Days, true = Full Month
+  final RxBool showAllCategories = false.obs;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   @override
@@ -33,6 +34,7 @@ class AnalyticsController extends GetxController {
     super.onInit();
     _generateMonths();
     loadAnalyticsData();
+    _loadAllMonths();
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
@@ -49,6 +51,26 @@ class AnalyticsController extends GetxController {
       list.add(DateTime(year, month));
     }
     availableMonths.assignAll(list);
+  }
+
+  /// Extends the selector with every month stored in Firestore.
+  Future<void> _loadAllMonths() async {
+    try {
+      final stored = await _monthRepository.getAllMonths();
+      final selected = selectedMonthDate;
+      final set = <DateTime>{...availableMonths};
+      for (final m in stored) {
+        final parts = m.monthId.split('-');
+        final y = int.tryParse(parts[0]);
+        final mo = int.tryParse(parts.length > 1 ? parts[1] : '');
+        if (y != null && mo != null) set.add(DateTime(y, mo));
+      }
+      final list = set.toList()..sort((a, b) => b.compareTo(a)); // newest first
+      availableMonths.assignAll(list);
+      selectedMonthIndex.value = list.indexOf(selected);
+    } catch (_) {
+      // Keep the default range if this fails
+    }
   }
 
   // ── Public methods ───────────────────────────────────────────────────────────

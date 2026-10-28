@@ -4,6 +4,7 @@ import 'main_controller.dart';
 import '../home/home_view.dart';
 import '../analytics/analytics_view.dart';
 import '../profile/profile_view.dart';
+import '../savings/savings_view.dart';
 import '../../shared/widgets/app_bottom_nav_bar.dart';
 
 class MainView extends GetView<MainController> {
@@ -19,6 +20,7 @@ class MainView extends GetView<MainController> {
                 children: const [
                   HomeView(),
                   AnalyticsView(),
+                  SavingsView(),
                   ProfileView(),
                 ],
               )),

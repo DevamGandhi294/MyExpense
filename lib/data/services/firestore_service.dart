@@ -18,6 +18,14 @@ class FirestoreService extends GetxService {
   CollectionReference expensesCol(String monthId) =>
       monthDoc(monthId).collection('expenses');
 
+  // users/{userId}/savings/{YYYY-MM}
+  CollectionReference get savingsCol =>
+      userDoc.collection('savings');
+
+  // users/{userId}/debts — money lent / borrowed
+  CollectionReference get debtsCol =>
+      userDoc.collection('debts');
+
   // users/{userId}/categories
   CollectionReference get categoriesCol =>
       userDoc.collection('categories');

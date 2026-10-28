@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myexpense/modules/savings/savings_controller.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:myexpense/app/theme/app_colors.dart';
@@ -14,6 +15,8 @@ import 'package:myexpense/app/routes/app_routes.dart';
 import 'package:myexpense/modules/monthly_detail/widgets/filter_toggle_widget.dart';
 import 'package:myexpense/shared/widgets/app_loader.dart';
 import 'package:myexpense/shared/widgets/common_sliver_app_bar.dart';
+import 'package:myexpense/shared/widgets/day_header_widget.dart';
+import 'package:myexpense/shared/widgets/app_add_button.dart';
 import 'monthly_detail_controller.dart';
 
 class MonthlyDetailView extends GetView<MonthlyDetailController> {
@@ -23,6 +26,13 @@ class MonthlyDetailView extends GetView<MonthlyDetailController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.neutral50,
+      floatingActionButton: AppAddButton(
+        tooltip: 'Add expense to this month',
+        onPressed: () => Get.toNamed(
+          AppRoutes.ADD_EXPENSE,
+          arguments: controller.defaultExpenseDate,
+        ),
+      ),
       body: CustomScrollView(
         slivers: [
           CommonSliverAppBar(
@@ -177,17 +187,43 @@ class MonthlyDetailView extends GetView<MonthlyDetailController> {
   }
 
   Widget _buildFlatList() {
-    final expenses = controller.filteredExpenses;
+    final days = groupExpensesByDay(controller.filteredExpenses);
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => Container(
-          color: AppColors.white,
-          child: _ExpenseListTile(
-            expense: expenses[index],
-            showDivider: index != expenses.length - 1,
-          ),
-        ),
-        childCount: expenses.length,
+        (context, index) {
+          final day = days[index];
+          final expenses = day.value;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DayHeaderWidget(
+                day: day.key,
+                total: expenses.fold(0.0, (s, e) => s + e.amount),
+                count: expenses.length,
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.pagePadding,
+                ),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: expenses
+                      .map((e) => _ExpenseListTile(
+                            expense: e,
+                            showDivider: e != expenses.last,
+                            showDate: false,
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
+          );
+        },
+        childCount: days.length,
       ),
     );
   }
@@ -196,10 +232,12 @@ class MonthlyDetailView extends GetView<MonthlyDetailController> {
 class _ExpenseListTile extends StatelessWidget {
   final ExpenseModel expense;
   final bool showDivider;
+  final bool showDate;
 
   const _ExpenseListTile({
     required this.expense,
     this.showDivider = true,
+    this.showDate = true,
   });
 
   String _formatAmount(double amount) {
@@ -283,6 +321,9 @@ class _ExpenseListTile extends StatelessWidget {
     }
     if (Get.isRegistered<AnalyticsController>()) {
       Get.find<AnalyticsController>().loadAnalyticsData();
+    }
+    if (Get.isRegistered<SavingsController>()) {
+      Get.find<SavingsController>().loadSavingsData();
     }
     if (Get.isRegistered<MonthlyDetailController>()) {
       Get.find<MonthlyDetailController>().loadMonthDetail();
@@ -373,7 +414,10 @@ class _ExpenseListTile extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${expense.category} · ${_formatDate(expense.date)}',
+                          showDate
+                              ? '${expense.category} · ${_formatDate(expense.date)}'
+                              : [expense.category, if (expense.note.isNotEmpty) expense.note]
+                                  .join(' · '),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.neutral500,
                             fontSize: 12,

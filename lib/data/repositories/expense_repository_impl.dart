@@ -20,7 +20,9 @@ class ExpenseRepositoryImpl extends GetxService implements ExpenseRepository {
 
   @override
   Future<void> addExpense(ExpenseModel expense) async {
-    final monthId = _mr.currentMonthId();
+    // Store under the month of the expense date, not always the current month
+    final monthId =
+        '${expense.date.year}-${expense.date.month.toString().padLeft(2, '0')}';
     final weekId = _getWeekId(expense.date);
     final docRef = _fs.expensesCol(monthId).doc(weekId);
 
@@ -70,24 +72,36 @@ class ExpenseRepositoryImpl extends GetxService implements ExpenseRepository {
 
   @override
   Future<void> deleteExpense(String monthId, ExpenseModel expense) async {
+    var removed = await _removeFromMonth(monthId, expense);
+    // Older builds stored past-dated expenses under the current month
+    if (!removed && monthId != _mr.currentMonthId()) {
+      monthId = _mr.currentMonthId();
+      removed = await _removeFromMonth(monthId, expense);
+    }
+    if (removed) {
+      await _mr.updateTotals(monthId, -expense.amount);
+    }
+  }
+
+  /// Removes the expense from the week doc for its date; true if it was there.
+  Future<bool> _removeFromMonth(String monthId, ExpenseModel expense) async {
     final weekId = _getWeekId(expense.date);
     final docRef = _fs.expensesCol(monthId).doc(weekId);
 
-    await _fs.db.runTransaction((transaction) async {
+    return _fs.db.runTransaction<bool>((transaction) async {
       final docSnap = await transaction.get(docRef);
-      if (docSnap.exists) {
-        final data = docSnap.data() as Map<String, dynamic>?;
-        if (data != null && data['expenses'] is List) {
-          final list = List<Map<String, dynamic>>.from(
-            (data['expenses'] as List).map((item) => Map<String, dynamic>.from(item as Map)),
-          );
-          list.removeWhere((item) => item['id'] == expense.id);
-          transaction.update(docRef, {'expenses': list});
-        }
-      }
+      if (!docSnap.exists) return false;
+      final data = docSnap.data() as Map<String, dynamic>?;
+      if (data == null || data['expenses'] is! List) return false;
+      final list = List<Map<String, dynamic>>.from(
+        (data['expenses'] as List).map((item) => Map<String, dynamic>.from(item as Map)),
+      );
+      final before = list.length;
+      list.removeWhere((item) => item['id'] == expense.id);
+      if (list.length == before) return false;
+      transaction.update(docRef, {'expenses': list});
+      return true;
     });
-
-    await _mr.updateTotals(monthId, -expense.amount);
   }
 
   @override

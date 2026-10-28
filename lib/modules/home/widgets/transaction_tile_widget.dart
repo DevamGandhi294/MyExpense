@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myexpense/modules/savings/savings_controller.dart';
+import 'package:myexpense/modules/category_detail/category_detail_controller.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:myexpense/data/models/expense_model.dart';
@@ -69,6 +71,12 @@ class TransactionTileWidget extends StatelessWidget {
     }
     if (Get.isRegistered<AnalyticsController>()) {
       Get.find<AnalyticsController>().loadAnalyticsData();
+    }
+    if (Get.isRegistered<CategoryDetailController>()) {
+      Get.find<CategoryDetailController>().loadData();
+    }
+    if (Get.isRegistered<SavingsController>()) {
+      Get.find<SavingsController>().loadSavingsData();
     }
     if (Get.isRegistered<MonthlyDetailController>()) {
       Get.find<MonthlyDetailController>().loadMonthDetail();

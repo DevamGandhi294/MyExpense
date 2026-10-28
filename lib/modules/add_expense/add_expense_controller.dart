@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myexpense/modules/savings/savings_controller.dart';
+import 'package:myexpense/modules/category_detail/category_detail_controller.dart';
 import 'package:get/get.dart';
 import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:myexpense/data/models/category_model.dart';
@@ -8,7 +10,6 @@ import 'package:myexpense/data/repositories/expense_repository.dart';
 import 'package:myexpense/modules/home/home_controller.dart';
 import 'package:myexpense/modules/analytics/analytics_controller.dart';
 import 'package:myexpense/modules/monthly_detail/monthly_detail_controller.dart';
-import 'package:myexpense/data/repositories/month_repository.dart';
 import 'package:myexpense/shared/utils/app_toast.dart';
 
 class AddExpenseController extends GetxController {
@@ -52,6 +53,8 @@ class AddExpenseController extends GetxController {
       selectedDate.value = expense.date;
       amount.value = expense.amount;
       isAmountTextEmpty.value = false;
+    } else if (Get.arguments is DateTime) {
+      selectedDate.value = Get.arguments as DateTime;
     }
 
     // Keep `amount` in sync with whatever the user types
@@ -186,6 +189,12 @@ class AddExpenseController extends GetxController {
       }
       if (Get.isRegistered<AnalyticsController>()) {
         Get.find<AnalyticsController>().loadAnalyticsData();
+      }
+      if (Get.isRegistered<CategoryDetailController>()) {
+        Get.find<CategoryDetailController>().loadData();
+      }
+      if (Get.isRegistered<SavingsController>()) {
+        Get.find<SavingsController>().loadSavingsData();
       }
       if (Get.isRegistered<MonthlyDetailController>()) {
         Get.find<MonthlyDetailController>().loadMonthDetail();

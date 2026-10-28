@@ -8,4 +8,7 @@ abstract class AppRoutes {
   static const MONTHLY_DETAIL = '/monthly-detail';
   static const PROFILE        = '/profile';
   static const ANALYTICS      = '/analytics';
+  static const SAVINGS        = '/savings';
+  static const DEBTS          = '/debts';
+  static const CATEGORY_DETAIL = '/category-detail';
 }

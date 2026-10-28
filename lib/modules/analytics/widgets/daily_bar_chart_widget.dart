@@ -117,6 +117,11 @@ class DailyBarChartWidget extends GetView<AnalyticsController> {
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipColor: (_) => AppColors.neutral800,
+                  // Keep the tooltip inside the chart so tall bars and
+                  // edge bars in the scrollable month view aren't clipped
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  tooltipMargin: 6,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final date = days[group.x.toInt()];
                     final formattedDate = DateFormat('d MMM').format(date);

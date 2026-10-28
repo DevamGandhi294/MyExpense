@@ -30,9 +30,15 @@ class AppBottomNavigationBar extends GetView<MainController> {
                   ),
                   const SizedBox(width: 14),
                   _NavItem(
-                    icon: Icons.person_rounded,
+                    icon: Icons.savings_rounded,
                     isActive: controller.selectedIndex.value == 2,
                     onTap: () => controller.changeTab(2),
+                  ),
+                  const SizedBox(width: 14),
+                  _NavItem(
+                    icon: Icons.person_rounded,
+                    isActive: controller.selectedIndex.value == 3,
+                    onTap: () => controller.changeTab(3),
                   ),
                 ],
               )),

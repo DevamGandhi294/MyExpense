@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../models/month_model.dart';
 import '../services/firestore_service.dart';
 import 'month_repository.dart';
+import 'savings_repository.dart';
 
 class MonthRepositoryImpl extends GetxService implements MonthRepository {
   final _fs = Get.find<FirestoreService>();
@@ -29,6 +30,17 @@ class MonthRepositoryImpl extends GetxService implements MonthRepository {
   }
 
   @override
+  Future<List<MonthModel>> getAllMonths() async {
+    final snap = await _fs.userDoc.collection('months').get();
+    final list = snap.docs
+        .map((d) => MonthModel.fromJson(d.data()))
+        .where((m) => m.monthId.isNotEmpty)
+        .toList();
+    list.sort((a, b) => b.monthId.compareTo(a.monthId)); // newest first
+    return list;
+  }
+
+  @override
   Future<void> createMonth(double salary) async {
     final now = DateTime.now();
     final id = currentMonthId();
@@ -43,6 +55,7 @@ class MonthRepositoryImpl extends GetxService implements MonthRepository {
       createdAt: DateTime.now(),
     );
     await _fs.monthDoc(id).set(month.toJson());
+    await _syncSavings(id);
   }
 
   @override
@@ -72,6 +85,7 @@ class MonthRepositoryImpl extends GetxService implements MonthRepository {
         'remainingBalance': salary - totalExpense,
       });
     }
+    await _syncSavings(monthId);
   }
 
   @override
@@ -82,10 +96,13 @@ class MonthRepositoryImpl extends GetxService implements MonthRepository {
 
       if (!snap.exists) {
         // Month doc missing — create a minimal one so the app doesn't crash
+        final parts = monthId.split('-');
+        final y = int.tryParse(parts[0]) ?? DateTime.now().year;
+        final m = int.tryParse(parts.length > 1 ? parts[1] : '') ?? DateTime.now().month;
         tx.set(ref, {
           'monthId':          monthId,
-          'month':            '',
-          'year':             DateTime.now().year,
+          'month':            _monthName(m),
+          'year':             y,
           'salaryAmount':     0.0,
           'salaryAddedDate':  Timestamp.fromDate(DateTime.now()),
           'totalExpense':     amount,
@@ -101,6 +118,14 @@ class MonthRepositoryImpl extends GetxService implements MonthRepository {
         'remainingBalance': (data['remainingBalance'] as num? ?? 0) - amount,
       });
     });
+    await _syncSavings(monthId);
+  }
+
+  /// Keeps users/{uid}/savings/{monthId} in step with the month's balance.
+  Future<void> _syncSavings(String monthId) async {
+    final month = await getMonthById(monthId);
+    if (month == null) return;
+    await Get.find<SavingsRepository>().syncMonth(month);
   }
 
   String _monthName(int m) => [

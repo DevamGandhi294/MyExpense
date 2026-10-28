@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myexpense/app/routes/app_routes.dart';
+import 'package:myexpense/app/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:myexpense/shared/utils/category_utils.dart';
 import '../analytics_controller.dart';
@@ -23,10 +25,7 @@ class TopCategoriesWidget extends GetView<AnalyticsController> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0x0F000000),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0x0F000000), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -37,7 +36,9 @@ class TopCategoriesWidget extends GetView<AnalyticsController> {
       ),
       child: Obx(() {
         final total = controller.totalSpent;
-        final topCats = controller.topCategories;
+        final allCats = controller.sortedCategoryExpenses;
+        final showAll = controller.showAllCategories.value;
+        final topCats = showAll ? allCats : controller.topCategories;
 
         if (topCats.isEmpty) {
           return const SizedBox.shrink();
@@ -46,13 +47,31 @@ class TopCategoriesWidget extends GetView<AnalyticsController> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Top Categories',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    showAll ? 'All Categories' : 'Top Categories',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ),
+                if (allCats.length > 3)
+                  GestureDetector(
+                    onTap: () => controller.showAllCategories.toggle(),
+                    child: Text(
+                      showAll ? 'Show Top 3' : 'See All (${allCats.length})',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.accentPurple,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 18),
 
@@ -64,86 +83,100 @@ class TopCategoriesWidget extends GetView<AnalyticsController> {
               final pct = total > 0 ? amount / total : 0.0;
               final meta = CategoryUtils.resolve(catName);
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(
-                  children: [
-                    // Icon
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: meta.bg,
-                        borderRadius: BorderRadius.circular(10),
+              return InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => Get.toNamed(
+                  AppRoutes.CATEGORY_DETAIL,
+                  arguments: {
+                    'category': catName,
+                    'monthId': controller.monthId,
+                  },
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      // Icon
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: meta.bg,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(meta.icon, color: meta.color, size: 20),
                       ),
-                      child: Icon(meta.icon, color: meta.color, size: 20),
-                    ),
-                    const SizedBox(width: 14),
+                      const SizedBox(width: 14),
 
-                    // Progress & labels
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                catName,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A1A2E),
+                      // Progress & labels
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  catName,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A2E),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '${(pct * 100).toStringAsFixed(0)}%',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade500,
+                                Text(
+                                  '${(pct * 100).toStringAsFixed(0)}%',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade500,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          // Custom progress bar
-                          Stack(
-                            children: [
-                              Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                              FractionallySizedBox(
-                                widthFactor: pct,
-                                child: Container(
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            // Custom progress bar
+                            Stack(
+                              children: [
+                                Container(
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: meta.color,
+                                    color: Colors.grey.shade100,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                FractionallySizedBox(
+                                  widthFactor: pct,
+                                  child: Container(
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: meta.color,
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 18),
+                      const SizedBox(width: 18),
 
-                    // Amount
-                    Text(
-                      _fmt(amount),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1A2E),
+                      // Amount
+                      Text(
+                        _fmt(amount),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1A1A2E),
+                        ),
                       ),
-                    ),
-                  ],
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
+                  ),
                 ),
               );
             }),

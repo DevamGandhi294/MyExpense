@@ -9,6 +9,7 @@ import 'package:myexpense/modules/home/widgets/circular_chart_widget.dart';
 import 'package:myexpense/modules/home/widgets/greeting_header_widget.dart';
 import 'package:myexpense/modules/home/widgets/summary_card_widget.dart';
 import 'package:myexpense/modules/home/widgets/transaction_tile_widget.dart';
+import 'package:myexpense/shared/widgets/app_add_button.dart';
 import 'package:myexpense/shared/widgets/common_sliver_app_bar.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -22,15 +23,11 @@ class HomeView extends GetView<HomeController> {
       // ── FAB ───────────────────────────────────────────────────────────────
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 50),
-        child: FloatingActionButton(
+        child: AppAddButton(
           onPressed: () => Get.to(
             () => const AddExpenseView(),
             binding: AddExpenseBinding(),
           ),
-          backgroundColor: AppColors.accentPurple,
-          elevation: 6,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
       ),
 

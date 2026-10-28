@@ -12,6 +12,12 @@ import '../../modules/monthly_detail/monthly_detail_binding.dart';
 import '../../modules/monthly_detail/monthly_detail_view.dart';
 import '../../modules/analytics/analytics_binding.dart';
 import '../../modules/analytics/analytics_view.dart';
+import '../../modules/savings/savings_binding.dart';
+import '../../modules/savings/savings_view.dart';
+import '../../modules/debts/debts_binding.dart';
+import '../../modules/debts/debts_view.dart';
+import '../../modules/category_detail/category_detail_binding.dart';
+import '../../modules/category_detail/category_detail_view.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -52,6 +58,23 @@ abstract class AppPages {
       name: AppRoutes.ANALYTICS,
       page: () => const AnalyticsView(),
       binding: AnalyticsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.SAVINGS,
+      page: () => const SavingsView(),
+      binding: SavingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.DEBTS,
+      page: () => const DebtsView(),
+      binding: DebtsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.CATEGORY_DETAIL,
+      page: () => const CategoryDetailView(),
+      binding: CategoryDetailBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }

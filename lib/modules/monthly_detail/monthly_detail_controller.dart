@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:myexpense/data/models/expense_model.dart';
 import 'package:myexpense/data/models/month_model.dart';
 import 'package:myexpense/data/repositories/expense_repository.dart';
@@ -39,14 +40,18 @@ class MonthlyDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    selectedMonthId.value = monthService.currentMonthId();
+    // Open the month passed by the caller (e.g. a past month from Analytics)
+    final arg = Get.arguments;
+    selectedMonthId.value = (arg is String && arg.isNotEmpty)
+        ? arg
+        : monthService.currentMonthId();
     loadMonthDetail();
   }
 
   Future<void> loadMonthDetail() async {
     try {
       isLoading.value = true;
-      final month = await monthService.getCurrentMonth();
+      final month = await monthService.getMonthById(selectedMonthId.value);
       currentMonth.value = month;
 
       // Update Rx values immediately so banner reacts without waiting
@@ -55,7 +60,7 @@ class MonthlyDetailController extends GetxController {
       totalExpense.value     = month?.totalExpense     ?? 0;
       monthTitle.value       = month != null
           ? '${month.month} ${month.year}'
-          : '';
+          : DateFormat('MMMM yyyy').format(defaultExpenseDate);
 
       final monthId = selectedMonthId.value;
       final expenses = await expenseService.getExpenses(monthId);
@@ -67,6 +72,17 @@ class MonthlyDetailController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Default date for a new expense added from this screen:
+  /// today for the current month, otherwise the last day of the viewed month.
+  DateTime get defaultExpenseDate {
+    final parts = selectedMonthId.value.split('-');
+    final y = int.tryParse(parts[0]);
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '');
+    final now = DateTime.now();
+    if (y == null || m == null || (y == now.year && m == now.month)) return now;
+    return DateTime(y, m + 1, 0);
   }
 
   void applyFilter() {
@@ -85,4 +101,4 @@ class MonthlyDetailController extends GetxController {
     filterMode.value = mode;
     applyFilter();
   }
-}
+}
